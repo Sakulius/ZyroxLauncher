@@ -1,0 +1,14 @@
+﻿<UserControl x:Class="Zyrox.Pages.GalleryPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Foreground="{StaticResource TextMain}">
+    <DockPanel Margin="40,16,16,24">
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,16">
+            <TextBlock Text="Gallery" Style="{StaticResource PageTitle}"/>
+            <TextBlock x:Name="Hint" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
+        </StackPanel>
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <WrapPanel x:Name="Grid"/>
+        </ScrollViewer>
+    </DockPanel>
+</UserControl>

@@ -1,0 +1,137 @@
+<Window x:Class="Zyrox.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Zyrox.Controls"
+        xmlns:pages="clr-namespace:Zyrox.Pages"
+        Title="Zyrox" Width="1180" Height="720" MinWidth="960" MinHeight="600"
+        WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize"
+        Icon="Assets/zyrox.ico"
+        Background="#101116" Foreground="{StaticResource TextMain}" FontFamily="{StaticResource Body}" FontSize="14"
+        Loaded="OnLoaded" Closing="OnClosing" StateChanged="OnStateChanged"
+        Activated="OnActivationChanged" Deactivated="OnActivationChanged">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="44" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="1" UseAeroCaptionButtons="False"/>
+    </WindowChrome.WindowChrome>
+
+    <Grid x:Name="Root" ClipToBounds="True">
+        <Grid Margin="-48" IsHitTestVisible="False">
+            <Grid.RenderTransform>
+                <TranslateTransform x:Name="BackgroundShift"/>
+            </Grid.RenderTransform>
+            <Grid>
+                <Grid.Effect>
+                    <BlurEffect x:Name="BackgroundBlur" Radius="0" RenderingBias="Performance"/>
+                </Grid.Effect>
+                <Image x:Name="BackgroundA" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Image x:Name="BackgroundB" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"/>
+            </Grid>
+            <Image x:Name="BackgroundSoft" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0"
+                   RenderOptions.BitmapScalingMode="Linear"/>
+        </Grid>
+        <Rectangle IsHitTestVisible="False">
+            <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                    <GradientStop Color="#99000000" Offset="0"/>
+                    <GradientStop Color="#22000000" Offset="0.2"/>
+                    <GradientStop Color="#22000000" Offset="0.55"/>
+                    <GradientStop Color="#D9000000" Offset="1"/>
+                </LinearGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Rectangle x:Name="ThemeTint" Fill="{DynamicResource Accent}" Opacity="0.05" IsHitTestVisible="False"/>
+        <Rectangle x:Name="PageScrim" Fill="#B3000000" Opacity="0" IsHitTestVisible="False"/>
+
+        <Grid x:Name="HomePage" Margin="104,52,20,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="20"/>
+                <ColumnDefinition Width="0.6*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="2">
+                <controls:SkinViewer x:Name="Avatar" Margin="-150,0,0,0"/>
+                <Button x:Name="SkinsButton" Style="{StaticResource GhostButton}" Background="{StaticResource Panel}" Width="46" Height="46" Padding="0"
+                        HorizontalAlignment="Left" VerticalAlignment="Bottom" ToolTip="Skins" Click="OnSkinsClick" AutomationProperties.AutomationId="SkinsButton">
+                    <Viewbox Width="24" Height="24">
+                        <Path Fill="{StaticResource TextMain}" Data="M8,2 L4.5,3.2 L0.5,7.5 L4,11 L6,9 L6,22 L18,22 L18,9 L20,11 L23.5,7.5 L19.5,3.2 L16,2 C15,5 9,5 8,2 Z"/>
+                    </Viewbox>
+                </Button>
+            </Grid>
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock x:Name="PlayerName" Grid.Row="1" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,10"/>
+
+                <Button x:Name="PlayButton" Grid.Row="2" Width="280" Height="56" HorizontalAlignment="Center" Style="{StaticResource PlayButton}" Click="OnPlayClick"/>
+
+                <ComboBox x:Name="ProfileBox" Grid.Row="3" Width="280" Height="42" HorizontalAlignment="Center" Margin="0,8,0,0" SelectionChanged="OnProfileChanged"/>
+
+                <StackPanel Grid.Row="4" Width="472" HorizontalAlignment="Center" Margin="0,8,0,0">
+                    <Border x:Name="ProgressTrack" Height="4" CornerRadius="2" Background="{StaticResource Field}" Margin="0,0,0,6" Visibility="Collapsed">
+                        <ProgressBar x:Name="Progress" Minimum="0" Maximum="1" Foreground="{DynamicResource Accent}"/>
+                    </Border>
+                    <TextBlock x:Name="ProgressDetail" Style="{StaticResource Muted}" TextAlignment="Center" Margin="0,0,0,4" Visibility="Collapsed"/>
+                    <TextBlock x:Name="StatusText" TextWrapping="Wrap" TextAlignment="Center"/>
+                    <Button x:Name="UpdateButton" Style="{StaticResource GhostButton}" HorizontalAlignment="Center" Margin="0,8,0,0" Padding="10,5" Visibility="Collapsed" Click="OnInstallUpdateClick"/>
+                    <Button x:Name="LogsButton" Content="Open logs" Style="{StaticResource GhostButton}" HorizontalAlignment="Center" Margin="0,8,0,0"
+                            Padding="10,5" Visibility="Collapsed" Click="OnLogsClick"/>
+                </StackPanel>
+            </Grid>
+
+        </Grid>
+
+        <pages:ProfilesPage x:Name="ProfilesView" Margin="84,44,0,0" Visibility="Collapsed"/>
+        <pages:ModsPage x:Name="ModsView" Margin="84,44,0,0" Visibility="Collapsed"/>
+        <pages:SkinsPage x:Name="SkinsView" Margin="84,44,0,0" Visibility="Collapsed"/>
+        <pages:WorldsPage x:Name="WorldsView" Margin="84,44,0,0" Visibility="Collapsed"/>
+        <pages:ServersPage x:Name="ServersView" Margin="84,44,0,0" Visibility="Collapsed"/>
+        <pages:GalleryPage x:Name="GalleryView" Margin="84,44,0,0" Visibility="Collapsed"/>
+        <pages:SettingsPage x:Name="SettingsView" Margin="84,44,0,0" Visibility="Collapsed"/>
+
+        <Border HorizontalAlignment="Left" VerticalAlignment="Top" Width="76" Margin="12,52,0,0" Padding="6"
+                Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="14">
+            <StackPanel>
+                <RadioButton x:Name="HomeTab" GroupName="Nav" Style="{StaticResource RailTab}" Checked="OnNavChecked" Tag="home" IsChecked="True">
+                    <StackPanel>
+                        <TextBlock Text="&#xE80F;" FontFamily="{StaticResource Icons}" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBlock Text="Home" FontSize="11"/>
+                    </StackPanel>
+                </RadioButton>
+                <RadioButton x:Name="ProfilesTab" GroupName="Nav" Style="{StaticResource RailTab}" Margin="0" Checked="OnNavChecked" Tag="profiles">
+                    <StackPanel>
+                        <TextBlock Text="&#xE8FD;" FontFamily="{StaticResource Icons}" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
+                        <TextBlock Text="Profiles" FontSize="11"/>
+                    </StackPanel>
+                </RadioButton>
+            </StackPanel>
+        </Border>
+
+        <DockPanel VerticalAlignment="Top" Height="44">
+            <Button DockPanel.Dock="Right" Content="&#xE8BB;" Style="{StaticResource CloseButton}" Click="OnCloseClick"
+                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close" AutomationProperties.AutomationId="CloseButton"/>
+            <Button x:Name="MaximizeButton" DockPanel.Dock="Right" Content="&#xE922;" Style="{StaticResource WindowButton}" Click="OnMaximizeClick"
+                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Maximize"/>
+            <Button DockPanel.Dock="Right" Content="&#xE921;" Style="{StaticResource WindowButton}" Click="OnMinimizeClick"
+                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize"/>
+            <RadioButton x:Name="SettingsTab" DockPanel.Dock="Right" GroupName="Nav" Style="{StaticResource NavTab}" Checked="OnNavChecked" Tag="settings"
+                         ToolTip="Settings" Margin="0,0,4,0">
+                <TextBlock Text="&#xE713;" FontFamily="{StaticResource Icons}" FontSize="15"/>
+            </RadioButton>
+            <Button x:Name="AccountsButton" DockPanel.Dock="Right" Content="&#xE77B;" Style="{StaticResource WindowButton}" FontSize="15" Click="OnAccountClick"
+                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Accounts" AutomationProperties.AutomationId="AccountsButton"/>
+            <StackPanel Orientation="Horizontal">
+                <Image Source="Assets/zyrox.ico" Width="20" Height="20" Margin="20,0,8,0" RenderOptions.BitmapScalingMode="HighQuality"/>
+                <TextBlock Text="ZYROX" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center" Margin="0,0,14,0"/>
+                <Button x:Name="BackButton" Content="&#xE72B;" Style="{StaticResource WindowButton}" FontSize="13" Visibility="Collapsed" Click="OnBackClick"
+                        WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Back"/>
+            </StackPanel>
+        </DockPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,64 @@
+<UserControl x:Class="Zyrox.Pages.SettingsPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             Foreground="{StaticResource TextMain}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="40,16,16,24">
+        <StackPanel MaxWidth="720" HorizontalAlignment="Left" Width="680">
+            <TextBlock Text="Settings" Style="{StaticResource PageTitle}" Margin="0,0,0,16"/>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Game" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,14"/>
+                    <CheckBox x:Name="MinimizeBox" Content="Minimize the launcher when the game starts" Margin="0,0,0,12"/>
+                    <CheckBox x:Name="SnapshotsBox" Content="Show snapshots" Margin="0,0,0,16"/>
+                    <TextBlock Text="Game folder" Margin="0,0,0,6"/>
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="Browse" Margin="8,0,0,0" Style="{StaticResource GhostButton}" Click="OnPickGameDir"/>
+                        <TextBox x:Name="GameDirBox"/>
+                    </DockPanel>
+                    <TextBlock x:Name="GameDirStatus" Style="{StaticResource Muted}" Margin="0,6,0,0" Visibility="Collapsed"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Appearance" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,14"/>
+                    <TextBlock Text="Color theme" Margin="0,0,0,6"/>
+                    <ComboBox x:Name="ThemeBox" Height="40" Tag="Bottom" Margin="0,0,0,14" SelectionChanged="OnThemeChanged"/>
+                    <CheckBox x:Name="BlurBox" Content="Slightly blur the background" Margin="0,0,0,14" Click="OnBlurClick"/>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Choose image or GIF" Style="{StaticResource GhostButton}" Click="OnPickBackground"/>
+                        <Button Content="Reset" Margin="8,0,0,0" Style="{StaticResource GhostButton}" Click="OnResetBackground"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Updates" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,6"/>
+                    <TextBlock x:Name="VersionText" Style="{StaticResource Muted}" Margin="0,0,0,12"/>
+                    <TextBlock Text="GitHub repository with the releases (owner/project)" Margin="0,0,0,6"/>
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="Check now" Margin="8,0,0,0" Style="{StaticResource GhostButton}" Click="OnCheckUpdateClick"/>
+                        <TextBox x:Name="UpdateRepoBox"/>
+                    </DockPanel>
+                    <TextBlock x:Name="UpdateRepoStatus" Style="{StaticResource Muted}" Margin="0,6,0,0" Visibility="Collapsed"/>
+                </StackPanel>
+            </Border>
+
+            <Border Style="{StaticResource Card}" Margin="0,0,0,12">
+                <StackPanel>
+                    <TextBlock Text="Discord" FontSize="17" FontWeight="SemiBold" Margin="0,0,0,14"/>
+                    <CheckBox x:Name="DiscordBox" Content="Show the running game as your Discord status"/>
+                </StackPanel>
+            </Border>
+
+            <Border x:Name="OfflinePanel" Style="{StaticResource Card}" Margin="0,0,0,12" Visibility="Collapsed">
+                <StackPanel>
+                    <TextBlock Text="Offline test name (debug only)" Margin="0,0,0,6"/>
+                    <TextBox x:Name="OfflineNameBox"/>
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
