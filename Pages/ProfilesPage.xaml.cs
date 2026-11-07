@@ -172,14 +172,24 @@ public partial class ProfilesPage : UserControl, IPage
         panel.Children.Add(Label("Additional Java arguments"));
         panel.Children.Add(args);
 
-        var client = new CheckBox
+        CheckBox? client = null;
+        if (ZyroxClientService.Supports(profile))
         {
-            Content = $"Zyrox Client (Fabric, Minecraft {ZyroxClientService.SupportedVersion})",
-            IsChecked = profile.ZyroxClient,
-            Margin = new Thickness(0, 0, 0, 12),
-            ToolTip = "Installs and updates the in-game client when you press Play. Press Right Shift in a world to open it."
-        };
-        panel.Children.Add(client);
+            client = new CheckBox
+            {
+                Content = "Zyrox Client",
+                IsChecked = profile.ZyroxClient,
+                Margin = new Thickness(0, 0, 0, 12),
+                ToolTip = "Installs and updates the in-game client when you press Play. Press Right Shift in a world to open it."
+            };
+            panel.Children.Add(client);
+        }
+        else
+        {
+            var unavailable = Label($"Zyrox Client is available for Fabric on Minecraft {string.Join(" and ", ZyroxClientService.SupportedVersions)}.");
+            unavailable.Margin = new Thickness(0, 0, 0, 12);
+            panel.Children.Add(unavailable);
+        }
 
         var status = Ui.Muted("");
         status.Margin = new Thickness(0, 8, 0, 0);
@@ -220,7 +230,7 @@ public partial class ProfilesPage : UserControl, IPage
 
     private static string FormatRam(double megabytes) => $"Memory: {megabytes / 1024:0.#} GB";
 
-    private void SaveDetails(GameProfile profile, Slider ram, CheckBox fullscreen, TextBox width, TextBox height, TextBox args, CheckBox client, TextBlock status)
+    private void SaveDetails(GameProfile profile, Slider ram, CheckBox fullscreen, TextBox width, TextBox height, TextBox args, CheckBox? client, TextBlock status)
     {
         if (!TryReadNumber(width.Text, 320, out var screenWidth) || !TryReadNumber(height.Text, 240, out var screenHeight))
         {
@@ -232,12 +242,7 @@ public partial class ProfilesPage : UserControl, IPage
             status.Text = "Enter both width and height for the window size.";
             return;
         }
-        var useClient = client.IsChecked == true;
-        if (useClient && !ZyroxClientService.Supports(profile))
-        {
-            status.Text = $"Zyrox Client needs a Fabric profile with Minecraft {ZyroxClientService.SupportedVersion}.";
-            return;
-        }
+        var useClient = client == null ? profile.ZyroxClient : client.IsChecked == true;
 
         profile.RamMb = (int)ram.Value;
         profile.Fullscreen = fullscreen.IsChecked == true;

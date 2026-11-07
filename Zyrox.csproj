@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
-    <Version>3.4.0</Version>
+    <Version>3.5.0</Version>
     <ApplicationIcon>Assets\zyrox.ico</ApplicationIcon>
   </PropertyGroup>
 
@@ -23,6 +23,7 @@
     <Resource Include="Assets\zyrox.ico" />
     <Resource Include="Assets\Fonts\*.ttf" />
     <EmbeddedResource Include="Assets\zyrox-client.jar" LogicalName="zyrox-client.jar" Condition="Exists('Assets\zyrox-client.jar')" />
+    <EmbeddedResource Include="Assets\zyrox-client-1.21.11.jar" LogicalName="zyrox-client-1.21.11.jar" Condition="Exists('Assets\zyrox-client-1.21.11.jar')" />
   </ItemGroup>
 
 </Project>

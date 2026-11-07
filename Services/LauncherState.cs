@@ -24,7 +24,7 @@ public class LauncherState
         }
         if (isFirstStart)
         {
-            var client = new GameProfile { Name = "Zyrox Client", GameVersion = ZyroxClientService.SupportedVersion, Loader = "fabric", ZyroxClient = true };
+            var client = new GameProfile { Name = "Zyrox Client", GameVersion = ZyroxClientService.NewestVersion, Loader = "fabric", ZyroxClient = true };
             Settings.Profiles.Add(client);
             Settings.SelectedProfileId = client.Id;
         }

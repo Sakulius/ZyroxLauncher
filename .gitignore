@@ -4,4 +4,4 @@ dist/
 publish*/
 .vs/
 *.user
-Assets/zyrox-client.jar
+Assets/zyrox-client*.jar
