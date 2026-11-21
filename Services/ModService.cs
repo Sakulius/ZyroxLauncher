@@ -12,7 +12,7 @@ public record ModHit(string ProjectId, string Title, string Description, long Do
 public record InstalledMod(string Path, string Name, bool Enabled);
 public record ModUpdate(InstalledMod Mod, string NewFileName);
 
-public class ModService
+public partial class ModService
 {
     private const string Api = "https://api.modrinth.com/v2/";
     private const string ManifestName = "zyrox-mods.json";

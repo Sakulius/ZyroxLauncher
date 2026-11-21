@@ -66,6 +66,9 @@ public class AppSettings
     public string OfflineName { get; set; } = "Player";
     public bool BlurBackground { get; set; } = true;
     public bool MinimizeOnLaunch { get; set; } = true;
+    public bool SkinAnimation { get; set; } = true;
+    public string CurseForgeApiKey { get; set; } = "";
+    public string ModProvider { get; set; } = "modrinth";
     public string SelectedProfileId { get; set; } = "";
     public List<GameProfile> Profiles { get; set; } = [];
     public List<ServerEntry> Servers { get; set; } = [];

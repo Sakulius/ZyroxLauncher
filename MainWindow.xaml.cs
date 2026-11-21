@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
@@ -43,6 +43,7 @@ public partial class MainWindow : Window
     private bool _minimizedForGame;
     private bool _isUpdatingProfiles;
     private bool _isParallaxHooked;
+    private bool _syncingTabs;
     private string _currentPage = "home";
     private string _lastMainPage = "home";
     private int _gifFrame;
@@ -56,11 +57,8 @@ public partial class MainWindow : Window
         CreateAuth();
 
         ProfilesView.Initialize(_state);
-        ModsView.Initialize(_state);
-        ServersView.Initialize(_state);
+        ProfileView.Initialize(_state);
         SkinsView.Initialize(_state);
-        WorldsView.Initialize(_state);
-        GalleryView.Initialize(_state);
         SettingsView.Initialize(_state);
         SettingsView.Applied += OnSettingsApplied;
 
@@ -68,6 +66,7 @@ public partial class MainWindow : Window
         _state.BackgroundChanged += () => _ = ApplyBackgroundAsync();
         _state.JoinRequested += OnJoinRequested;
         _state.WorldRequested += OnWorldRequested;
+        _state.PlayRequested += profile => OnWorldRequested(profile, null);
         _state.SkinChanged += () => _ = LoadAvatarAsync();
         _state.RefreshSession = RefreshForPagesAsync;
         _state.ThemeChanged += () => ThemeService.Apply(_state.Settings.Theme);
@@ -86,6 +85,9 @@ public partial class MainWindow : Window
         ThemeService.Apply(_state.Settings.Theme);
         _themeTimer.Start();
         Avatar.SetSkin(SkinTexture.Placeholder());
+        VersionText.Text = "v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "");
+        SkinAnimToggle.IsChecked = _state.Settings.SkinAnimation;
+        PlayIntro();
         _ = CheckForUpdateAsync(manual: false);
         RefreshProfiles();
         UpdateBlur();
@@ -225,6 +227,7 @@ public partial class MainWindow : Window
         if (request == _avatarRequest)
         {
             Avatar.SetSkin(skin ?? SkinTexture.Placeholder());
+            SetHead(skin);
             if (skin != null)
                 Avatar.PlayWave();
         }
@@ -242,18 +245,27 @@ public partial class MainWindow : Window
 
     private void UpdateUi()
     {
-        PlayerName.Text = _session?.Username ?? "Not signed in";
+        var name = _session?.Username ?? "Sign in";
+        if (PlayerName.Text != name)
+        {
+            PlayerName.Text = name;
+            Pop(NameTagScale);
+        }
+        AccountName.Text = _session?.Username ?? "Add account";
+        OnlineDot.Visibility = _session != null && !_isOffline ? Visibility.Visible : Visibility.Collapsed;
         AccountsButton.IsEnabled = !_isLoggingIn && !IsLaunching;
         AccountsButton.ToolTip = _session == null ? "Sign in" : _session.Username + " (accounts)";
 
         var animate = !IsGameRunning && WindowState != WindowState.Minimized && IsActive;
-        Avatar.AnimationEnabled = animate;
+        Avatar.AnimationEnabled = animate && _state.Settings.SkinAnimation;
+        GridFx.Animate = animate && _currentPage == "home";
         Avatar.IsWalking = IsLaunching;
         SetParallax(animate);
         UpdateGifPlayback();
         SkinsView.SetAnimation(animate);
 
-        PlayButton.Content = IsLaunching ? "CANCEL" : IsGameRunning ? "RUNNING" : _isLoggingIn ? "SIGNING IN ..." : _session == null ? "SIGN IN" : "PLAY";
+        PlayButton.Content = IsLaunching ? "CANCEL" : IsGameRunning ? "RUNNING" : _isLoggingIn ? "SIGNING IN" : _session == null ? "SIGN IN" : "LAUNCH";
+        PlayButton.Tag = _state.SelectedProfile?.ToString().Replace("  ·  ", " · ");
         PlayButton.IsEnabled = IsLaunching || (!IsGameRunning && !_isLoggingIn);
         ProfileBox.IsEnabled = !IsLaunching && !IsGameRunning;
         SettingsTab.IsEnabled = !IsLaunching && !IsGameRunning;
@@ -386,7 +398,7 @@ public partial class MainWindow : Window
         await LaunchAsync(server, null);
     }
 
-    private async void OnWorldRequested(GameProfile profile, string world)
+    private async void OnWorldRequested(GameProfile profile, string? world)
     {
         ShowPage("home");
         if (IsLaunching || IsGameRunning)
@@ -538,7 +550,10 @@ public partial class MainWindow : Window
     private void OnProfileChanged(object sender, SelectionChangedEventArgs e)
     {
         if (!_isUpdatingProfiles && ProfileBox.SelectedItem is GameProfile profile)
+        {
             _state.SelectedProfile = profile;
+            UpdateUi();
+        }
     }
 
     private async void OnSettingsApplied(SettingsChange change)
@@ -611,16 +626,26 @@ public partial class MainWindow : Window
 
     private void OnNavChecked(object sender, RoutedEventArgs e)
     {
-        if (IsInitialized && sender is RadioButton { Tag: string page })
-            ShowPage(page);
+        if (!IsInitialized || _syncingTabs)
+            return;
+        ShowPage(sender == ProfilesTab ? "profiles" : sender == SkinsTab ? "skins" : sender == SettingsTab ? "settings" : "home");
     }
-
-    private void OnSkinsClick(object sender, RoutedEventArgs e) => ShowPage("skins");
 
     private void OnBackClick(object sender, RoutedEventArgs e) => ShowPage(_lastMainPage);
 
     private void ShowPage(string page)
     {
+        // Profile sections open inside the profile page.
+        if (page is "mods" or "worlds" or "servers" or "gallery" or "profile")
+        {
+            ProfileView.SelectTab(page == "profile" ? "mods" : page);
+            if (_currentPage == "profile")
+            {
+                ProfileView.OnShown();
+                return;
+            }
+            page = "profile";
+        }
         if (page == _currentPage)
             return;
 
@@ -628,45 +653,188 @@ public partial class MainWindow : Window
             SettingsView.Apply();
         _currentPage = page;
 
-        var isMain = page is "home" or "profiles" or "settings";
+        var isMain = page is "home" or "profiles" or "skins" or "settings";
         if (isMain)
             _lastMainPage = page;
-        BackButton.Visibility = isMain ? Visibility.Collapsed : Visibility.Visible;
+        BackButton.IsEnabled = !isMain;
+        _syncingTabs = true;
         HomeTab.IsChecked = page == "home";
-        ProfilesTab.IsChecked = page == "profiles";
+        ProfilesTab.IsChecked = page is "profiles" or "profile";
+        SkinsTab.IsChecked = page == "skins";
         SettingsTab.IsChecked = page == "settings";
+        _syncingTabs = false;
+        MoveRailIndicator(page);
+        SetBreadcrumb(page);
 
-        FrameworkElement[] views = [HomePage, ProfilesView, ModsView, SkinsView, WorldsView, ServersView, GalleryView, SettingsView];
+        FrameworkElement[] views = [HomePage, ProfilesView, ProfileView, SkinsView, SettingsView];
         foreach (var view in views)
             view.Visibility = Visibility.Collapsed;
 
         FrameworkElement current = page switch
         {
             "profiles" => ProfilesView,
-            "mods" => ModsView,
+            "profile" => ProfileView,
             "skins" => SkinsView,
-            "worlds" => WorldsView,
-            "servers" => ServersView,
-            "gallery" => GalleryView,
             "settings" => SettingsView,
             _ => HomePage
         };
         current.Visibility = Visibility.Visible;
         AnimateIn(current);
         UpdateBlur();
+        UpdateUi();
         UpdateGifPlayback();
 
         (current as IPage)?.OnShown();
     }
 
-    private static void AnimateIn(FrameworkElement element)
+    private static readonly IEasingFunction Smooth = new QuarticEase { EasingMode = EasingMode.EaseOut };
+    private static readonly IEasingFunction Springy = new BackEase { EasingMode = EasingMode.EaseOut, Amplitude = 0.35 };
+
+    private static void AnimateIn(FrameworkElement element) => Rise(element, 0, 22, 380);
+
+    // Fades an element in while it slides up into place; the delay staggers groups of elements.
+    internal static void Rise(UIElement element, int delayMs, double distance = 18, int durationMs = 520)
+    {
+        var shift = new TranslateTransform(0, distance);
+        element.RenderTransform = shift;
+        element.Opacity = 0;
+        var begin = TimeSpan.FromMilliseconds(delayMs);
+        var duration = TimeSpan.FromMilliseconds(durationMs);
+        shift.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(distance, 0, duration) { BeginTime = begin, EasingFunction = Smooth });
+        element.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, duration) { BeginTime = begin, EasingFunction = Smooth });
+    }
+
+    private static void Pop(ScaleTransform scale)
+    {
+        var grow = new DoubleAnimation(0.7, 1, TimeSpan.FromMilliseconds(420)) { EasingFunction = Springy };
+        scale.BeginAnimation(ScaleTransform.ScaleXProperty, grow);
+        scale.BeginAnimation(ScaleTransform.ScaleYProperty, grow);
+    }
+
+    private void PlayIntro()
+    {
+        var duration = TimeSpan.FromMilliseconds(450);
+        Root.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, duration) { EasingFunction = Smooth });
+        RootScale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(0.985, 1, duration) { EasingFunction = Smooth });
+        RootScale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(0.985, 1, duration) { EasingFunction = Smooth });
+
+        LogoSpin.BeginAnimation(RotateTransform.AngleProperty,
+            new DoubleAnimation(-180, 0, TimeSpan.FromMilliseconds(900)) { EasingFunction = Springy });
+        var delay = 120;
+        foreach (UIElement tab in RailTabs.Children)
+            Rise(tab, delay += 60, 12);
+        Rise(SettingsTab, delay + 60, 12);
+
+        Stage.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(1200)) { BeginTime = TimeSpan.FromMilliseconds(150) });
+        Rise(NameTag, 260);
+        Rise(Avatar, 340, 30, 700);
+        Rise(LaunchBar, 460, 24);
+        Rise(StatusPanel, 560);
+        Rise(SkinAnimToggle, 600, 10);
+
+        // slow breathing glow behind the player
+        StageGlow.BeginAnimation(OpacityProperty, new DoubleAnimation(0.05, 0.13, TimeSpan.FromSeconds(3.2))
+        {
+            AutoReverse = true,
+            RepeatBehavior = RepeatBehavior.Forever,
+            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut }
+        });
+
+        Dispatcher.BeginInvoke(() => MoveRailIndicator(_currentPage, instant: true), DispatcherPriority.Loaded);
+        ShowBetaNotice();
+    }
+
+    // Shown on every start while the new look is in beta.
+    private void ShowBetaNotice()
+    {
+        var begin = TimeSpan.FromMilliseconds(750);
+        BetaNotice.Visibility = Visibility.Visible;
+        BetaScrim.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(350)) { BeginTime = begin });
+        BetaCard.Opacity = 0;
+        BetaCard.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(300)) { BeginTime = begin });
+        var grow = new DoubleAnimation(0.85, 1, TimeSpan.FromMilliseconds(500)) { BeginTime = begin, EasingFunction = Springy };
+        BetaCardScale.BeginAnimation(ScaleTransform.ScaleXProperty, grow);
+        BetaCardScale.BeginAnimation(ScaleTransform.ScaleYProperty, grow);
+    }
+
+    private void OnBetaNoticeClose(object sender, RoutedEventArgs e)
     {
         var duration = TimeSpan.FromMilliseconds(220);
-        var ease = new CubicEase { EasingMode = EasingMode.EaseOut };
-        var shift = new TranslateTransform();
-        element.RenderTransform = shift;
-        shift.BeginAnimation(TranslateTransform.YProperty, new DoubleAnimation(14, 0, duration) { EasingFunction = ease });
-        element.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, duration) { EasingFunction = ease });
+        var shrink = new DoubleAnimation(0.92, duration) { EasingFunction = Smooth };
+        BetaCardScale.BeginAnimation(ScaleTransform.ScaleXProperty, shrink);
+        BetaCardScale.BeginAnimation(ScaleTransform.ScaleYProperty, shrink);
+        BetaCard.BeginAnimation(OpacityProperty, new DoubleAnimation(0, duration));
+        var fade = new DoubleAnimation(0, duration);
+        fade.Completed += (_, _) => BetaNotice.Visibility = Visibility.Collapsed;
+        BetaScrim.BeginAnimation(OpacityProperty, fade);
+    }
+
+    private void MoveRailIndicator(string page, bool instant = false)
+    {
+        RadioButton? tab = page switch
+        {
+            "home" => HomeTab,
+            "profiles" or "profile" => ProfilesTab,
+            "skins" => SkinsTab,
+            "settings" => SettingsTab,
+            _ => null
+        };
+        var fade = TimeSpan.FromMilliseconds(200);
+        if (tab == null || !tab.IsLoaded)
+        {
+            RailIndicator.BeginAnimation(OpacityProperty, new DoubleAnimation(0, fade));
+            return;
+        }
+
+        // The tab may still be sliding in from the intro, so subtract its own offset.
+        var slide = (tab.RenderTransform as TranslateTransform)?.Y ?? 0;
+        var y = tab.TransformToAncestor(Rail).Transform(new Point(0, 0)).Y - slide;
+        if (instant)
+        {
+            RailIndicatorShift.Y = y;
+            RailIndicator.BeginAnimation(OpacityProperty, new DoubleAnimation(1, TimeSpan.FromMilliseconds(500)) { BeginTime = TimeSpan.FromMilliseconds(300) });
+            return;
+        }
+        RailIndicatorShift.BeginAnimation(TranslateTransform.YProperty,
+            new DoubleAnimation(y, TimeSpan.FromMilliseconds(420)) { EasingFunction = Springy });
+        RailIndicator.BeginAnimation(OpacityProperty, new DoubleAnimation(1, fade));
+    }
+
+    private void SetBreadcrumb(string page)
+    {
+        Breadcrumb.Text = page switch
+        {
+            "home" => "Launchpad",
+            "profiles" => "Profiles",
+            "skins" => "Skins",
+            "settings" => "Settings",
+            "profile" => "Profiles  /  " + _state.SelectedProfile.Name,
+            _ => page
+        };
+        var duration = TimeSpan.FromMilliseconds(320);
+        BreadcrumbShift.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(-10, 0, duration) { EasingFunction = Smooth });
+        Breadcrumb.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, duration));
+    }
+
+    private void SetHead(SkinTexture? skin)
+    {
+        // Textures are upscaled, so scale the 8x8 face (at 8,8) and its hat layer (at 40,8) by the same factor.
+        var s = skin == null ? 0 : skin.Base.PixelWidth / SkinTexture.Width;
+        BitmapSource? face = skin == null ? null : new CroppedBitmap(skin.Base, new Int32Rect(8 * s, 8 * s, 8 * s, 8 * s));
+        BitmapSource? hat = skin?.Overlay == null ? null : new CroppedBitmap(skin.Overlay, new Int32Rect(40 * s, 8 * s, 8 * s, 8 * s));
+        HeadBase.Source = NameHeadBase.Source = face;
+        HeadOverlay.Source = NameHeadOverlay.Source = hat;
+        NameHead.Visibility = face != null ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    private void OnSkinAnimToggled(object sender, RoutedEventArgs e)
+    {
+        var on = SkinAnimToggle.IsChecked == true;
+        if (_state.Settings.SkinAnimation == on)
+            return;
+        _state.Settings.SkinAnimation = on;
+        _state.Save();
+        UpdateUi();
     }
 
     private void UpdateBlur()

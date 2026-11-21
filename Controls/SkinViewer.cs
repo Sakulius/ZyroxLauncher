@@ -76,15 +76,18 @@ public class SkinViewer : Border
         _skinModel.Transform = rotation;
 
         var scene = new Model3DGroup();
-        scene.Children.Add(new AmbientLight(Color.FromRgb(0xB8, 0xB8, 0xB8)));
-        scene.Children.Add(new DirectionalLight(Color.FromRgb(0x58, 0x58, 0x58), new Vector3D(-0.3, -0.4, -1)));
+        // Key light from the upper front left plus a soft fill from the right, so each side of a box gets its own shade like in game.
+        scene.Children.Add(new AmbientLight(Color.FromRgb(0x8C, 0x8C, 0x8C)));
+        scene.Children.Add(new DirectionalLight(Color.FromRgb(0x7A, 0x7A, 0x7A), new Vector3D(-0.45, -0.6, -1)));
+        scene.Children.Add(new DirectionalLight(Color.FromRgb(0x2A, 0x2A, 0x30), new Vector3D(0.8, 0.2, -0.4)));
         scene.Children.Add(_skinModel);
 
         _camera = new PerspectiveCamera(new Point3D(0, 0, CameraDistance), new Vector3D(0, 0, -1), new Vector3D(0, 1, 0), 30);
         var viewport = new Viewport3D { IsHitTestVisible = false, Camera = _camera };
         viewport.Children.Add(new ModelVisual3D { Content = scene });
+        // Pixel-sharp texture, but smooth (antialiased) silhouette edges instead of jagged stairs.
         RenderOptions.SetBitmapScalingMode(viewport, BitmapScalingMode.NearestNeighbor);
-        RenderOptions.SetEdgeMode(viewport, EdgeMode.Aliased);
+        RenderOptions.SetEdgeMode(viewport, EdgeMode.Unspecified);
 
         var shadow = new Ellipse
         {

@@ -61,6 +61,7 @@ public class LauncherState
     public event Action<ServerEntry>? JoinRequested;
     public event Action<string>? NavigateRequested;
     public event Action<GameProfile, string>? WorldRequested;
+    public event Action<GameProfile>? PlayRequested;
     public event Action? SkinChanged;
     public event Action? ThemeChanged;
     public event Action? UpdateCheckRequested;
@@ -115,6 +116,7 @@ public class LauncherState
     public void RequestJoin(ServerEntry server) => JoinRequested?.Invoke(server);
     public void Navigate(string page) => NavigateRequested?.Invoke(page);
     public void RequestWorld(GameProfile profile, string folder) => WorldRequested?.Invoke(profile, folder);
+    public void RequestPlay(GameProfile profile) => PlayRequested?.Invoke(profile);
     public void NotifySkinChanged() => SkinChanged?.Invoke();
     public void NotifyThemeChanged() => ThemeChanged?.Invoke();
     public void RequestUpdateCheck() => UpdateCheckRequested?.Invoke();

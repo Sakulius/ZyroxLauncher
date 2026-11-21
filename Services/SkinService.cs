@@ -12,7 +12,7 @@ public class SkinTexture
 {
     public const int Width = 64;
     public const int CapeHeight = 32;
-    private const int Upscale = 8;
+    private const int Upscale = 16;
 
     private SkinTexture(BitmapSource baseLayer, BitmapSource? overlay, BitmapSource? cape, bool slim, int height)
     {

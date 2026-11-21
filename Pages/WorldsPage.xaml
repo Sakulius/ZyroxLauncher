@@ -2,8 +2,8 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              Foreground="{StaticResource TextMain}">
-    <DockPanel Margin="40,16,40,24">
-        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,16">
+    <DockPanel Margin="28,20,28,24">
+        <StackPanel x:Name="Header" DockPanel.Dock="Top" Margin="0,0,0,16">
             <TextBlock Text="Worlds" Style="{StaticResource PageTitle}"/>
             <TextBlock x:Name="Hint" Style="{StaticResource Muted}" Margin="0,4,0,0"/>
         </StackPanel>

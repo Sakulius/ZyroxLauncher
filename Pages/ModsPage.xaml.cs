@@ -28,8 +28,45 @@ public partial class ModsPage : UserControl, IPage
     private ContentType? ContentMode => ResourcePacksMode.IsChecked == true ? ContentType.ResourcePack
         : ShadersMode.IsChecked == true ? ContentType.Shader : null;
     private bool IsModMode => !IsPackMode && ContentMode == null;
+    private bool IsCurseForge => !IsPackMode && CurseSource.IsChecked == true;
+    private string SourceName => IsCurseForge ? "CurseForge" : "Modrinth";
 
-    public void Initialize(LauncherState state) => _state = state;
+    public void Initialize(LauncherState state)
+    {
+        _state = state;
+        // An own key from the settings wins over the one built into the launcher.
+        if (state.Settings.CurseForgeApiKey.Length > 0)
+            _mods.CurseForgeKey = state.Settings.CurseForgeApiKey;
+        CurseSource.IsChecked = state.Settings.ModProvider == "curseforge";
+    }
+
+    private void OnProviderChanged(object sender, RoutedEventArgs e)
+    {
+        if (_state == null)
+            return;
+        _state.Settings.ModProvider = CurseSource.IsChecked == true ? "curseforge" : "modrinth";
+        _state.Save();
+        if (IsVisible)
+            OnShown();
+    }
+
+    private void OnSaveKeyClick(object sender, RoutedEventArgs e)
+    {
+        var key = CurseKeyBox.Password.Trim();
+        if (key.Length == 0)
+            return;
+        _state.Settings.CurseForgeApiKey = key;
+        _mods.CurseForgeKey = key;
+        _state.Save();
+        CurseKeyBox.Clear();
+        OnShown();
+    }
+
+    private void OnLinkClick(object sender, System.Windows.Navigation.RequestNavigateEventArgs e)
+    {
+        LauncherState.OpenInShell(e.Uri.AbsoluteUri);
+        e.Handled = true;
+    }
 
     public void OnShown()
     {
@@ -46,7 +83,9 @@ public partial class ModsPage : UserControl, IPage
             ? "Each modpack installs as its own profile. Everything comes from Modrinth."
             : ContentMode == ContentType.Shader
                 ? $"For {profile.Name}. Shaders need the Iris mod, which you can find under Mods."
-                : !showContent ? "" : $"For {profile.Name}. Everything comes from Modrinth.";
+                : !showContent ? "" : $"For {profile.Name}. Everything comes from {SourceName}.";
+        ProviderBar.Visibility = IsPackMode ? Visibility.Collapsed : Visibility.Visible;
+        CurseKeyCard.Visibility = IsCurseForge && _mods.CurseForgeKey.Length == 0 ? Visibility.Visible : Visibility.Collapsed;
         if (!showContent)
             return;
 
@@ -68,7 +107,7 @@ public partial class ModsPage : UserControl, IPage
 
     private void OnModeChanged(object sender, RoutedEventArgs e)
     {
-        if (IsLoaded && _state != null)
+        if (IsVisible && _state != null)
             OnShown();
     }
 
@@ -104,8 +143,15 @@ public partial class ModsPage : UserControl, IPage
             await Task.Delay(delayMs, cts.Token);
             var query = SearchBox.Text.Trim();
             var gameVersion = isPackMode ? "" : await ResolveGameVersionAsync(profile);
+            if (IsCurseForge && _mods.CurseForgeKey.Length == 0)
+            {
+                SearchStatus.Text = "";
+                return;
+            }
             var hits = isPackMode
                 ? await _mods.SearchPacksAsync(query, _offset, cts.Token)
+                : IsCurseForge
+                    ? await _mods.SearchCurseForgeAsync(contentType, query, profile.Loader, gameVersion, _offset, cts.Token)
                 : contentType != null
                     ? await _mods.SearchContentAsync(contentType, query, gameVersion, _offset, cts.Token)
                     : await _mods.SearchAsync(query, profile.Loader, gameVersion, _offset, cts.Token);
@@ -145,7 +191,10 @@ public partial class ModsPage : UserControl, IPage
             install.Content = "Loading ...";
             try
             {
-                await _mods.InstallAsync(hit.ProjectId, profile.Loader, profile.GameVersion, folder, CancellationToken.None);
+                if (ModService.IsCurseForge(hit.ProjectId))
+                    await _mods.InstallCurseForgeAsync(hit.ProjectId, profile.Loader, profile.GameVersion, folder, CancellationToken.None);
+                else
+                    await _mods.InstallAsync(hit.ProjectId, profile.Loader, profile.GameVersion, folder, CancellationToken.None);
                 install.Content = "Installed";
                 SearchStatus.Text = "";
                 RefreshInstalled();
@@ -170,7 +219,10 @@ public partial class ModsPage : UserControl, IPage
             install.Content = "Loading ...";
             try
             {
-                await _mods.InstallContentAsync(hit.ProjectId, type, gameVersion, folder, CancellationToken.None);
+                if (ModService.IsCurseForge(hit.ProjectId))
+                    await _mods.InstallCurseForgeContentAsync(hit.ProjectId, type, gameVersion, folder, CancellationToken.None);
+                else
+                    await _mods.InstallContentAsync(hit.ProjectId, type, gameVersion, folder, CancellationToken.None);
                 install.Content = "Installed";
                 SearchStatus.Text = "";
                 RefreshInstalled();

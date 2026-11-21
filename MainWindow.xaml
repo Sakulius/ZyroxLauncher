@@ -3,17 +3,22 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:controls="clr-namespace:Zyrox.Controls"
         xmlns:pages="clr-namespace:Zyrox.Pages"
-        Title="Zyrox" Width="1180" Height="720" MinWidth="960" MinHeight="600"
+        Title="Zyrox" Width="1240" Height="760" MinWidth="980" MinHeight="620"
         WindowStartupLocation="CenterScreen" WindowStyle="None" ResizeMode="CanResize"
         Icon="Assets/zyrox.ico"
-        Background="#101116" Foreground="{StaticResource TextMain}" FontFamily="{StaticResource Body}" FontSize="14"
+        Background="#080B13" Foreground="{StaticResource TextMain}" FontFamily="{StaticResource Body}" FontSize="14"
         Loaded="OnLoaded" Closing="OnClosing" StateChanged="OnStateChanged"
         Activated="OnActivationChanged" Deactivated="OnActivationChanged">
     <WindowChrome.WindowChrome>
-        <WindowChrome CaptionHeight="44" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="1" UseAeroCaptionButtons="False"/>
+        <WindowChrome CaptionHeight="56" ResizeBorderThickness="6" CornerRadius="0" GlassFrameThickness="1" UseAeroCaptionButtons="False"/>
     </WindowChrome.WindowChrome>
 
-    <Grid x:Name="Root" ClipToBounds="True">
+    <Grid x:Name="Root" ClipToBounds="True" Opacity="0" RenderTransformOrigin="0.5,0.5">
+        <Grid.RenderTransform>
+            <ScaleTransform x:Name="RootScale" ScaleX="0.985" ScaleY="0.985"/>
+        </Grid.RenderTransform>
+
+        <!-- Background image with blur, parallax and a soft copy for sub pages -->
         <Grid Margin="-48" IsHitTestVisible="False">
             <Grid.RenderTransform>
                 <TranslateTransform x:Name="BackgroundShift"/>
@@ -31,107 +36,236 @@
         <Rectangle IsHitTestVisible="False">
             <Rectangle.Fill>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                    <GradientStop Color="#99000000" Offset="0"/>
-                    <GradientStop Color="#22000000" Offset="0.2"/>
-                    <GradientStop Color="#22000000" Offset="0.55"/>
-                    <GradientStop Color="#D9000000" Offset="1"/>
+                    <GradientStop Color="#B3060910" Offset="0"/>
+                    <GradientStop Color="#59060910" Offset="0.3"/>
+                    <GradientStop Color="#66060910" Offset="0.6"/>
+                    <GradientStop Color="#E6060910" Offset="1"/>
                 </LinearGradientBrush>
             </Rectangle.Fill>
         </Rectangle>
         <Rectangle x:Name="ThemeTint" Fill="{DynamicResource Accent}" Opacity="0.05" IsHitTestVisible="False"/>
-        <Rectangle x:Name="PageScrim" Fill="#B3000000" Opacity="0" IsHitTestVisible="False"/>
+        <Rectangle x:Name="PageScrim" Fill="#C2060910" Opacity="0" IsHitTestVisible="False"/>
 
-        <Grid x:Name="HomePage" Margin="104,52,20,16">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="20"/>
-                <ColumnDefinition Width="0.6*"/>
-            </Grid.ColumnDefinitions>
+        <Grid Margin="88,56,0,0">
+            <!-- Home: perspective grid stage with the player, name tag and split launch button -->
+            <Grid x:Name="HomePage">
+                <Grid x:Name="Stage" IsHitTestVisible="False">
+                    <controls:RetroGrid x:Name="GridFx" LineBrush="{DynamicResource Accent}" Opacity="0.4">
+                        <controls:RetroGrid.OpacityMask>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                <GradientStop Color="#FF000000" Offset="0"/>
+                                <GradientStop Color="#00000000" Offset="0.38"/>
+                                <GradientStop Color="#00000000" Offset="0.6"/>
+                                <GradientStop Color="#FF000000" Offset="1"/>
+                            </LinearGradientBrush>
+                        </controls:RetroGrid.OpacityMask>
+                    </controls:RetroGrid>
+                    <Ellipse x:Name="StageGlow" Width="560" Height="460" Fill="{DynamicResource Accent}" Opacity="0.08">
+                        <Ellipse.Effect>
+                            <BlurEffect Radius="120" RenderingBias="Performance"/>
+                        </Ellipse.Effect>
+                    </Ellipse>
+                </Grid>
 
-            <Grid Grid.Column="2">
-                <controls:SkinViewer x:Name="Avatar" Margin="-150,0,0,0"/>
-                <Button x:Name="SkinsButton" Style="{StaticResource GhostButton}" Background="{StaticResource Panel}" Width="46" Height="46" Padding="0"
-                        HorizontalAlignment="Left" VerticalAlignment="Bottom" ToolTip="Skins" Click="OnSkinsClick" AutomationProperties.AutomationId="SkinsButton">
-                    <Viewbox Width="24" Height="24">
-                        <Path Fill="{StaticResource TextMain}" Data="M8,2 L4.5,3.2 L0.5,7.5 L4,11 L6,9 L6,22 L18,22 L18,9 L20,11 L23.5,7.5 L19.5,3.2 L16,2 C15,5 9,5 8,2 Z"/>
-                    </Viewbox>
-                </Button>
+                <CheckBox x:Name="SkinAnimToggle" Content="Skin Animation" Style="{StaticResource ToggleSwitch}"
+                          HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,28,0"
+                          Checked="OnSkinAnimToggled" Unchecked="OnSkinAnimToggled"/>
+
+                <Grid HorizontalAlignment="Center" Width="460" Margin="0,24,0,26">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid x:Name="NameTag" HorizontalAlignment="Center" Margin="0,8,0,0">
+                        <Border Background="#A6000000" Padding="6,5,12,5" RenderTransformOrigin="0.5,1">
+                            <Border.RenderTransform>
+                                <ScaleTransform x:Name="NameTagScale"/>
+                            </Border.RenderTransform>
+                            <StackPanel Orientation="Horizontal">
+                                <Grid x:Name="NameHead" Width="28" Height="28" Margin="0,0,9,0" RenderOptions.BitmapScalingMode="NearestNeighbor">
+                                    <Image x:Name="NameHeadBase"/>
+                                    <Image x:Name="NameHeadOverlay"/>
+                                </Grid>
+                                <TextBlock x:Name="PlayerName" FontFamily="{StaticResource Pixel}" FontSize="26" VerticalAlignment="Center" Margin="0,3,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
+
+                    <controls:SkinViewer x:Name="Avatar" Grid.Row="1" MinHeight="200" Margin="0,-4,0,-24"/>
+
+                    <Grid x:Name="LaunchBar" Grid.Row="2" Width="400" Height="72" HorizontalAlignment="Center">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="6"/>
+                            <ColumnDefinition Width="64"/>
+                        </Grid.ColumnDefinitions>
+                        <Button x:Name="PlayButton" Style="{StaticResource PlayButton}" FontSize="28" Click="OnPlayClick"
+                                AutomationProperties.AutomationId="PlayButton"/>
+                        <ComboBox x:Name="ProfileBox" Grid.Column="2" Style="{StaticResource ArrowCombo}" SelectionChanged="OnProfileChanged"
+                                  ToolTip="Select profile"/>
+                        <Border x:Name="ProgressTrack" Grid.ColumnSpan="3" Height="3" VerticalAlignment="Bottom" Background="#33FFFFFF" Visibility="Collapsed">
+                            <ProgressBar x:Name="Progress" Minimum="0" Maximum="1" Foreground="White"/>
+                        </Border>
+                    </Grid>
+
+                    <StackPanel x:Name="StatusPanel" Grid.Row="3" HorizontalAlignment="Center" Margin="0,12,0,0">
+                        <TextBlock x:Name="ProgressDetail" Style="{StaticResource Muted}" TextAlignment="Center" Margin="0,0,0,4" Visibility="Collapsed"/>
+                        <TextBlock x:Name="StatusText" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="460" Foreground="#D8DEEA"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <Button x:Name="UpdateButton" Style="{StaticResource GhostButton}" Margin="4,8,4,0" Padding="10,5" Visibility="Collapsed" Click="OnInstallUpdateClick"/>
+                            <Button x:Name="LogsButton" Content="Open logs" Style="{StaticResource GhostButton}" Margin="4,8,4,0"
+                                    Padding="10,5" Visibility="Collapsed" Click="OnLogsClick"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
             </Grid>
 
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <TextBlock x:Name="PlayerName" Grid.Row="1" FontSize="24" FontWeight="SemiBold" HorizontalAlignment="Center" Margin="0,14,0,10"/>
-
-                <Button x:Name="PlayButton" Grid.Row="2" Width="280" Height="56" HorizontalAlignment="Center" Style="{StaticResource PlayButton}" Click="OnPlayClick"/>
-
-                <ComboBox x:Name="ProfileBox" Grid.Row="3" Width="280" Height="42" HorizontalAlignment="Center" Margin="0,8,0,0" SelectionChanged="OnProfileChanged"/>
-
-                <StackPanel Grid.Row="4" Width="472" HorizontalAlignment="Center" Margin="0,8,0,0">
-                    <Border x:Name="ProgressTrack" Height="4" CornerRadius="2" Background="{StaticResource Field}" Margin="0,0,0,6" Visibility="Collapsed">
-                        <ProgressBar x:Name="Progress" Minimum="0" Maximum="1" Foreground="{DynamicResource Accent}"/>
-                    </Border>
-                    <TextBlock x:Name="ProgressDetail" Style="{StaticResource Muted}" TextAlignment="Center" Margin="0,0,0,4" Visibility="Collapsed"/>
-                    <TextBlock x:Name="StatusText" TextWrapping="Wrap" TextAlignment="Center"/>
-                    <Button x:Name="UpdateButton" Style="{StaticResource GhostButton}" HorizontalAlignment="Center" Margin="0,8,0,0" Padding="10,5" Visibility="Collapsed" Click="OnInstallUpdateClick"/>
-                    <Button x:Name="LogsButton" Content="Open logs" Style="{StaticResource GhostButton}" HorizontalAlignment="Center" Margin="0,8,0,0"
-                            Padding="10,5" Visibility="Collapsed" Click="OnLogsClick"/>
-                </StackPanel>
-            </Grid>
-
+            <pages:ProfilesPage x:Name="ProfilesView" Visibility="Collapsed"/>
+            <pages:ProfileView x:Name="ProfileView" Visibility="Collapsed"/>
+            <pages:SkinsPage x:Name="SkinsView" Visibility="Collapsed"/>
+            <pages:SettingsPage x:Name="SettingsView" Visibility="Collapsed"/>
         </Grid>
 
-        <pages:ProfilesPage x:Name="ProfilesView" Margin="84,44,0,0" Visibility="Collapsed"/>
-        <pages:ModsPage x:Name="ModsView" Margin="84,44,0,0" Visibility="Collapsed"/>
-        <pages:SkinsPage x:Name="SkinsView" Margin="84,44,0,0" Visibility="Collapsed"/>
-        <pages:WorldsPage x:Name="WorldsView" Margin="84,44,0,0" Visibility="Collapsed"/>
-        <pages:ServersPage x:Name="ServersView" Margin="84,44,0,0" Visibility="Collapsed"/>
-        <pages:GalleryPage x:Name="GalleryView" Margin="84,44,0,0" Visibility="Collapsed"/>
-        <pages:SettingsPage x:Name="SettingsView" Margin="84,44,0,0" Visibility="Collapsed"/>
+        <!-- Top bar: back, brand with version, breadcrumb, account pill, window buttons -->
+        <Grid x:Name="TopBar" VerticalAlignment="Top" Height="56" Margin="88,0,0,0">
+            <Border Background="#C70B101A" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1"/>
+            <DockPanel>
+                <Button DockPanel.Dock="Right" Content="&#xE8BB;" Style="{StaticResource CloseButton}" Click="OnCloseClick" Margin="0,0,8,0"
+                        ToolTip="Close" AutomationProperties.AutomationId="CloseButton"/>
+                <Button x:Name="MaximizeButton" DockPanel.Dock="Right" Content="&#xE922;" Style="{StaticResource WindowButton}" Click="OnMaximizeClick" ToolTip="Maximize"/>
+                <Button DockPanel.Dock="Right" Content="&#xE921;" Style="{StaticResource WindowButton}" Click="OnMinimizeClick" ToolTip="Minimize"/>
+                <Border DockPanel.Dock="Right" Width="1" Height="22" Background="{StaticResource Line}" Margin="10,0"/>
 
-        <Border HorizontalAlignment="Left" VerticalAlignment="Top" Width="76" Margin="12,52,0,0" Padding="6"
-                Background="{StaticResource Panel}" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="14">
-            <StackPanel>
-                <RadioButton x:Name="HomeTab" GroupName="Nav" Style="{StaticResource RailTab}" Checked="OnNavChecked" Tag="home" IsChecked="True">
-                    <StackPanel>
-                        <TextBlock Text="&#xE80F;" FontFamily="{StaticResource Icons}" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                        <TextBlock Text="Home" FontSize="11"/>
+                <Button x:Name="AccountsButton" DockPanel.Dock="Right" Style="{StaticResource GhostButton}" Background="#14FFFFFF" Padding="6,5,10,5"
+                        Height="38" Click="OnAccountClick" WindowChrome.IsHitTestVisibleInChrome="True" AutomationProperties.AutomationId="AccountsButton">
+                    <StackPanel Orientation="Horizontal">
+                        <Grid Width="24" Height="24" RenderOptions.BitmapScalingMode="NearestNeighbor">
+                            <Border Background="#33FFFFFF" CornerRadius="3"/>
+                            <Image x:Name="HeadBase"/>
+                            <Image x:Name="HeadOverlay"/>
+                        </Grid>
+                        <TextBlock x:Name="AccountName" FontWeight="SemiBold" FontSize="13" VerticalAlignment="Center" Margin="9,0,7,0"/>
+                        <Ellipse x:Name="OnlineDot" Width="8" Height="8" Fill="#3DDC84" VerticalAlignment="Center"/>
+                        <TextBlock Text="&#xE70D;" FontFamily="{StaticResource Icons}" FontSize="10" Foreground="{StaticResource TextSoft}"
+                                   VerticalAlignment="Center" Margin="9,1,0,0"/>
                     </StackPanel>
-                </RadioButton>
-                <RadioButton x:Name="ProfilesTab" GroupName="Nav" Style="{StaticResource RailTab}" Margin="0" Checked="OnNavChecked" Tag="profiles">
-                    <StackPanel>
-                        <TextBlock Text="&#xE8FD;" FontFamily="{StaticResource Icons}" FontSize="18" HorizontalAlignment="Center" Margin="0,0,0,4"/>
-                        <TextBlock Text="Profiles" FontSize="11"/>
-                    </StackPanel>
-                </RadioButton>
-            </StackPanel>
-        </Border>
+                </Button>
 
-        <DockPanel VerticalAlignment="Top" Height="44">
-            <Button DockPanel.Dock="Right" Content="&#xE8BB;" Style="{StaticResource CloseButton}" Click="OnCloseClick"
-                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Close" AutomationProperties.AutomationId="CloseButton"/>
-            <Button x:Name="MaximizeButton" DockPanel.Dock="Right" Content="&#xE922;" Style="{StaticResource WindowButton}" Click="OnMaximizeClick"
-                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Maximize"/>
-            <Button DockPanel.Dock="Right" Content="&#xE921;" Style="{StaticResource WindowButton}" Click="OnMinimizeClick"
-                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Minimize"/>
-            <RadioButton x:Name="SettingsTab" DockPanel.Dock="Right" GroupName="Nav" Style="{StaticResource NavTab}" Checked="OnNavChecked" Tag="settings"
-                         ToolTip="Settings" Margin="0,0,4,0">
-                <TextBlock Text="&#xE713;" FontFamily="{StaticResource Icons}" FontSize="15"/>
-            </RadioButton>
-            <Button x:Name="AccountsButton" DockPanel.Dock="Right" Content="&#xE77B;" Style="{StaticResource WindowButton}" FontSize="15" Click="OnAccountClick"
-                    WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Accounts" AutomationProperties.AutomationId="AccountsButton"/>
-            <StackPanel Orientation="Horizontal">
-                <Image Source="Assets/zyrox.ico" Width="20" Height="20" Margin="20,0,8,0" RenderOptions.BitmapScalingMode="HighQuality"/>
-                <TextBlock Text="ZYROX" FontWeight="SemiBold" FontSize="16" VerticalAlignment="Center" Margin="0,0,14,0"/>
-                <Button x:Name="BackButton" Content="&#xE72B;" Style="{StaticResource WindowButton}" FontSize="13" Visibility="Collapsed" Click="OnBackClick"
-                        WindowChrome.IsHitTestVisibleInChrome="True" ToolTip="Back"/>
-            </StackPanel>
-        </DockPanel>
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="10,0,0,0">
+                    <Button x:Name="BackButton" Content="&#xE76B;" Style="{StaticResource WindowButton}" Width="32" Height="32" FontSize="12"
+                            IsEnabled="False" Click="OnBackClick" ToolTip="Back"/>
+                    <StackPanel VerticalAlignment="Center" Margin="12,0,0,0">
+                        <TextBlock Text="ZYROX" FontFamily="{StaticResource Pixel}" FontSize="20" Margin="0,2,0,0"/>
+                        <TextBlock x:Name="VersionText" FontSize="10" Foreground="{StaticResource TextSoft}" Margin="1,-1,0,0"/>
+                    </StackPanel>
+                    <TextBlock Text="&#xE76C;" FontFamily="{StaticResource Icons}" FontSize="10" Foreground="{StaticResource TextSoft}"
+                               VerticalAlignment="Center" Margin="16,0,12,0"/>
+                    <TextBlock x:Name="Breadcrumb" Text="Launchpad" FontSize="14" Foreground="#D8DEEA" VerticalAlignment="Center">
+                        <TextBlock.RenderTransform>
+                            <TranslateTransform x:Name="BreadcrumbShift"/>
+                        </TextBlock.RenderTransform>
+                    </TextBlock>
+                </StackPanel>
+            </DockPanel>
+        </Grid>
+
+        <!-- Start notice: beta look, online features off, work in progress -->
+        <Grid x:Name="BetaNotice" Panel.ZIndex="10" Visibility="Collapsed">
+            <Rectangle x:Name="BetaScrim" Fill="#B3060910" Opacity="0"/>
+            <Grid x:Name="BetaCard" Width="460" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
+                <Grid.RenderTransform>
+                    <ScaleTransform x:Name="BetaCardScale"/>
+                </Grid.RenderTransform>
+                <Border Background="{DynamicResource Accent}" Opacity="0.25" Margin="10" CornerRadius="6">
+                    <Border.Effect>
+                        <BlurEffect Radius="40" RenderingBias="Performance"/>
+                    </Border.Effect>
+                </Border>
+                <Border Background="#F70B101A" CornerRadius="6"/>
+                <Border BorderBrush="{DynamicResource Accent}" BorderThickness="1,1,1,3" CornerRadius="6"/>
+                <StackPanel Margin="28,26,28,24">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Background="{DynamicResource Accent}" CornerRadius="3" Padding="8,4,8,2" VerticalAlignment="Center">
+                            <TextBlock Text="BETA" FontFamily="{StaticResource Pixel}" FontSize="12" Foreground="#0B101A"/>
+                        </Border>
+                        <TextBlock Text="Heads up!" FontFamily="{StaticResource Pixel}" FontSize="24" Margin="12,2,0,0" VerticalAlignment="Center"/>
+                    </StackPanel>
+                    <StackPanel Margin="0,18,0,0">
+                        <DockPanel Margin="0,0,0,12">
+                            <TextBlock DockPanel.Dock="Left" Text="&#xE9CE;" FontFamily="{StaticResource Icons}" FontSize="16" Foreground="{DynamicResource Accent}" Margin="0,1,12,0"/>
+                            <TextBlock TextWrapping="Wrap" Foreground="#D8DEEA">
+                                <Run FontWeight="SemiBold" Foreground="White">The new look is a beta.</Run> Things may still change, move around or look a bit rough.
+                            </TextBlock>
+                        </DockPanel>
+                        <DockPanel Margin="0,0,0,12">
+                            <TextBlock DockPanel.Dock="Left" Text="&#xF384;" FontFamily="{StaticResource Icons}" FontSize="16" Foreground="{DynamicResource Accent}" Margin="0,1,12,0"/>
+                            <TextBlock TextWrapping="Wrap" Foreground="#D8DEEA">
+                                <Run FontWeight="SemiBold" Foreground="White">Online features are turned off</Run> for now. They will come back later.
+                            </TextBlock>
+                        </DockPanel>
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Left" Text="&#xE90F;" FontFamily="{StaticResource Icons}" FontSize="16" Foreground="{DynamicResource Accent}" Margin="0,1,12,0"/>
+                            <TextBlock TextWrapping="Wrap" Foreground="#D8DEEA">
+                                <Run FontWeight="SemiBold" Foreground="White">The launcher is under construction.</Run> I am working on it, so expect bugs and missing parts.
+                            </TextBlock>
+                        </DockPanel>
+                    </StackPanel>
+                    <Button Content="GOT IT" Style="{StaticResource PlayButton}" Height="44" FontSize="16" Margin="0,22,0,0" Click="OnBetaNoticeClose"/>
+                </StackPanel>
+            </Grid>
+        </Grid>
+
+        <!-- Sidebar with a sliding selection box -->
+        <Grid x:Name="Rail" HorizontalAlignment="Left" Width="88">
+            <Border Background="#EE0B101A" BorderBrush="{StaticResource Line}" BorderThickness="0,0,1,0"/>
+            <Border Height="220" VerticalAlignment="Top" IsHitTestVisible="False" Opacity="0.12" Background="{DynamicResource Accent}">
+                <Border.OpacityMask>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                        <GradientStop Color="#FF000000" Offset="0"/>
+                        <GradientStop Color="#00000000" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.OpacityMask>
+            </Border>
+
+            <Grid x:Name="RailIndicator" VerticalAlignment="Top" Height="68" Margin="10,0" Opacity="0" IsHitTestVisible="False">
+                <Grid.RenderTransform>
+                    <TranslateTransform x:Name="RailIndicatorShift"/>
+                </Grid.RenderTransform>
+                <Border Background="{DynamicResource Accent}" Opacity="0.2" CornerRadius="4"/>
+                <Border BorderBrush="{DynamicResource Accent}" BorderThickness="1,1,1,3" CornerRadius="4"/>
+            </Grid>
+
+            <DockPanel Margin="10,0">
+                <Border DockPanel.Dock="Top" Height="56" WindowChrome.IsHitTestVisibleInChrome="False">
+                    <Image x:Name="Logo" Source="Assets/zyrox.ico" Width="30" Height="30" RenderOptions.BitmapScalingMode="HighQuality" RenderTransformOrigin="0.5,0.5">
+                        <Image.RenderTransform>
+                            <RotateTransform x:Name="LogoSpin"/>
+                        </Image.RenderTransform>
+                    </Image>
+                </Border>
+                <RadioButton x:Name="SettingsTab" DockPanel.Dock="Bottom" GroupName="Nav" Style="{StaticResource RailTab}" Tag="SETTINGS"
+                             Checked="OnNavChecked" Margin="0,0,0,12" AutomationProperties.AutomationId="SettingsTab">
+                    <TextBlock Text="&#xE713;" FontFamily="{StaticResource Icons}" FontSize="22"/>
+                </RadioButton>
+                <StackPanel x:Name="RailTabs" Margin="0,14,0,0">
+                    <RadioButton x:Name="HomeTab" GroupName="Nav" Style="{StaticResource RailTab}" Tag="PLAY" Checked="OnNavChecked" IsChecked="True">
+                        <TextBlock Text="&#xE768;" FontFamily="{StaticResource Icons}" FontSize="22"/>
+                    </RadioButton>
+                    <RadioButton x:Name="ProfilesTab" GroupName="Nav" Style="{StaticResource RailTab}" Tag="PROFILES" Checked="OnNavChecked">
+                        <TextBlock Text="&#xE8FD;" FontFamily="{StaticResource Icons}" FontSize="22"/>
+                    </RadioButton>
+                    <RadioButton x:Name="SkinsTab" GroupName="Nav" Style="{StaticResource RailTab}" Tag="SKINS" Checked="OnNavChecked"
+                                 AutomationProperties.AutomationId="SkinsButton">
+                        <Viewbox Width="22" Height="22">
+                            <Path Fill="{Binding Foreground, RelativeSource={RelativeSource AncestorType=RadioButton}}"
+                                  Data="M8,2 L4.5,3.2 L0.5,7.5 L4,11 L6,9 L6,22 L18,22 L18,9 L20,11 L23.5,7.5 L19.5,3.2 L16,2 C15,5 9,5 8,2 Z"/>
+                        </Viewbox>
+                    </RadioButton>
+                </StackPanel>
+            </DockPanel>
+        </Grid>
     </Grid>
 </Window>

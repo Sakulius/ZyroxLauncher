@@ -53,37 +53,6 @@ internal static class Ui
         return button;
     }
 
-    public static WrapPanel ProfileLinks(LauncherState state, GameProfile profile)
-    {
-        var links = new WrapPanel { Margin = new Thickness(0, 12, 0, 0) };
-        foreach (var (page, label, glyph) in new[] { ("mods", "Mods", "\uEA86"), ("worlds", "Worlds", "\uE774"), ("servers", "Servers", "\uE968"), ("gallery", "Gallery", "\uEB9F") })
-        {
-            var content = new StackPanel { Orientation = Orientation.Horizontal };
-            content.Children.Add(new TextBlock
-            {
-                Text = glyph,
-                FontFamily = (FontFamily)Application.Current.FindResource("Icons"),
-                VerticalAlignment = VerticalAlignment.Center,
-                Margin = new Thickness(0, 0, 7, 0)
-            });
-            content.Children.Add(new TextBlock { Text = label, VerticalAlignment = VerticalAlignment.Center });
-            var button = new Button
-            {
-                Content = content,
-                Style = (Style)Application.Current.FindResource("GhostButton"),
-                Padding = new Thickness(12, 7, 12, 7),
-                Margin = new Thickness(0, 0, 8, 0)
-            };
-            button.Click += (_, _) =>
-            {
-                state.SelectedProfile = profile;
-                state.Navigate(page);
-            };
-            links.Children.Add(button);
-        }
-        return links;
-    }
-
     public static Border IconFrame(Image image) => new()
     {
         Width = 48,
