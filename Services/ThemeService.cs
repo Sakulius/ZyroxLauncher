@@ -16,13 +16,13 @@ public static class ThemeService
     public static readonly ThemeChoice Blue = Create("blue", "Blue", 0x4F, 0xA3, 0xF7);
     public static readonly ThemeChoice Purple = Create("purple", "Purple", 0xA9, 0x8B, 0xFA);
     public static readonly ThemeChoice Orange = Create("orange", "Orange", 0xF5, 0xA3, 0x42);
-    public static readonly ThemeChoice Red = Create("red", "Red", 0xF2, 0x71, 0x6B);
+    public static readonly ThemeChoice Red = Create("red", "Red", 0xE5, 0x48, 0x4D);
     public static readonly ThemeChoice Pink = Create("pink", "Pink", 0xF2, 0x7F, 0xC0);
     public static readonly ThemeChoice Cyan = Create("cyan", "Teal", 0x3F, 0xCB, 0xD6);
 
     public static readonly IReadOnlyList<ThemeChoice> Choices =
     [
-        new ThemeChoice(AutoId, "Automatic by time of day", Green.Accent, Green.Hover),
+        new ThemeChoice(AutoId, "Automatic by time of day", Red.Accent, Red.Hover),
         Green, Blue, Purple, Orange, Red, Pink, Cyan
     ];
 
@@ -38,7 +38,7 @@ public static class ThemeService
     {
         var theme = id == AutoId
             ? ForHour(DateTime.Now.Hour)
-            : Choices.FirstOrDefault(c => c.Id == id && c.Id != AutoId) ?? Green;
+            : Choices.FirstOrDefault(c => c.Id == id && c.Id != AutoId) ?? Red;
         SetColor("Accent", theme.Accent);
         SetColor("AccentHover", theme.Hover);
     }

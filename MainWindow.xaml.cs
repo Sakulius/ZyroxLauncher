@@ -85,7 +85,6 @@ public partial class MainWindow : Window
         ThemeService.Apply(_state.Settings.Theme);
         _themeTimer.Start();
         Avatar.SetSkin(SkinTexture.Placeholder());
-        VersionText.Text = "v" + (typeof(MainWindow).Assembly.GetName().Version?.ToString(3) ?? "");
         SkinAnimToggle.IsChecked = _state.Settings.SkinAnimation;
         PlayIntro();
         _ = CheckForUpdateAsync(manual: false);
@@ -258,7 +257,6 @@ public partial class MainWindow : Window
 
         var animate = !IsGameRunning && WindowState != WindowState.Minimized && IsActive;
         Avatar.AnimationEnabled = animate && _state.Settings.SkinAnimation;
-        GridFx.Animate = animate && _currentPage == "home";
         Avatar.IsWalking = IsLaunching;
         SetParallax(animate);
         UpdateGifPlayback();
@@ -656,7 +654,7 @@ public partial class MainWindow : Window
         var isMain = page is "home" or "profiles" or "skins" or "settings";
         if (isMain)
             _lastMainPage = page;
-        BackButton.IsEnabled = !isMain;
+        BackButton.Visibility = isMain ? Visibility.Collapsed : Visibility.Visible;
         _syncingTabs = true;
         HomeTab.IsChecked = page == "home";
         ProfilesTab.IsChecked = page is "profiles" or "profile";
@@ -664,7 +662,6 @@ public partial class MainWindow : Window
         SettingsTab.IsChecked = page == "settings";
         _syncingTabs = false;
         MoveRailIndicator(page);
-        SetBreadcrumb(page);
 
         FrameworkElement[] views = [HomePage, ProfilesView, ProfileView, SkinsView, SettingsView];
         foreach (var view in views)
@@ -718,27 +715,20 @@ public partial class MainWindow : Window
         RootScale.BeginAnimation(ScaleTransform.ScaleXProperty, new DoubleAnimation(0.985, 1, duration) { EasingFunction = Smooth });
         RootScale.BeginAnimation(ScaleTransform.ScaleYProperty, new DoubleAnimation(0.985, 1, duration) { EasingFunction = Smooth });
 
-        LogoSpin.BeginAnimation(RotateTransform.AngleProperty,
-            new DoubleAnimation(-180, 0, TimeSpan.FromMilliseconds(900)) { EasingFunction = Springy });
+        var logo = new DoubleAnimation(0.4, 1, TimeSpan.FromMilliseconds(900)) { EasingFunction = Springy };
+        LogoScale.BeginAnimation(ScaleTransform.ScaleXProperty, logo);
+        LogoScale.BeginAnimation(ScaleTransform.ScaleYProperty, logo);
+        var railShift = new TranslateTransform(-20, 0);
+        Rail.RenderTransform = railShift;
+        railShift.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(-20, 0, TimeSpan.FromMilliseconds(500)) { BeginTime = TimeSpan.FromMilliseconds(100), EasingFunction = Smooth });
         var delay = 120;
         foreach (UIElement tab in RailTabs.Children)
             Rise(tab, delay += 60, 12);
-        Rise(SettingsTab, delay + 60, 12);
-
-        Stage.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(1200)) { BeginTime = TimeSpan.FromMilliseconds(150) });
         Rise(NameTag, 260);
         Rise(Avatar, 340, 30, 700);
         Rise(LaunchBar, 460, 24);
         Rise(StatusPanel, 560);
         Rise(SkinAnimToggle, 600, 10);
-
-        // slow breathing glow behind the player
-        StageGlow.BeginAnimation(OpacityProperty, new DoubleAnimation(0.05, 0.13, TimeSpan.FromSeconds(3.2))
-        {
-            AutoReverse = true,
-            RepeatBehavior = RepeatBehavior.Forever,
-            EasingFunction = new SineEase { EasingMode = EasingMode.EaseInOut }
-        });
 
         Dispatcher.BeginInvoke(() => MoveRailIndicator(_currentPage, instant: true), DispatcherPriority.Loaded);
         ShowBetaNotice();
@@ -776,7 +766,6 @@ public partial class MainWindow : Window
             "home" => HomeTab,
             "profiles" or "profile" => ProfilesTab,
             "skins" => SkinsTab,
-            "settings" => SettingsTab,
             _ => null
         };
         var fade = TimeSpan.FromMilliseconds(200);
@@ -798,22 +787,6 @@ public partial class MainWindow : Window
         RailIndicatorShift.BeginAnimation(TranslateTransform.YProperty,
             new DoubleAnimation(y, TimeSpan.FromMilliseconds(420)) { EasingFunction = Springy });
         RailIndicator.BeginAnimation(OpacityProperty, new DoubleAnimation(1, fade));
-    }
-
-    private void SetBreadcrumb(string page)
-    {
-        Breadcrumb.Text = page switch
-        {
-            "home" => "Launchpad",
-            "profiles" => "Profiles",
-            "skins" => "Skins",
-            "settings" => "Settings",
-            "profile" => "Profiles  /  " + _state.SelectedProfile.Name,
-            _ => page
-        };
-        var duration = TimeSpan.FromMilliseconds(320);
-        BreadcrumbShift.BeginAnimation(TranslateTransform.XProperty, new DoubleAnimation(-10, 0, duration) { EasingFunction = Smooth });
-        Breadcrumb.BeginAnimation(OpacityProperty, new DoubleAnimation(0, 1, duration));
     }
 
     private void SetHead(SkinTexture? skin)

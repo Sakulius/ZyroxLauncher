@@ -80,7 +80,7 @@ public partial class ProfilesPage : UserControl, IPage
             actions.Children.Add(new TextBlock
             {
                 Text = "ACTIVE",
-                FontFamily = (FontFamily)FindResource("Pixel"),
+                FontFamily = (FontFamily)FindResource("Heading"),
                 FontSize = 12,
                 Foreground = (Brush)FindResource("Accent"),
                 VerticalAlignment = VerticalAlignment.Center,

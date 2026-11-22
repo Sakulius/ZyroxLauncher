@@ -33,7 +33,7 @@ public partial class SettingsPage : UserControl, IPage
         BlurBox.IsChecked = settings.BlurBackground;
         _isUpdatingTheme = true;
         ThemeBox.ItemsSource = ThemeService.Choices;
-        ThemeBox.SelectedItem = ThemeService.Choices.FirstOrDefault(c => c.Id == settings.Theme) ?? ThemeService.Green;
+        ThemeBox.SelectedItem = ThemeService.Choices.FirstOrDefault(c => c.Id == settings.Theme) ?? ThemeService.Red;
         _isUpdatingTheme = false;
         VersionText.Text = "Installed version:" + UpdateService.CurrentVersion.ToString(3);
         UpdateRepoBox.Text = settings.UpdateRepository;

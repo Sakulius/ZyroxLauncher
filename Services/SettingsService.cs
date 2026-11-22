@@ -75,7 +75,7 @@ public class AppSettings
     public List<SavedSkin> SavedSkins { get; set; } = [];
     public string ActiveAccountId { get; set; } = "";
     public bool DiscordEnabled { get; set; } = true;
-    public string Theme { get; set; } = "green";
+    public string Theme { get; set; } = "red";
     public string UpdateRepository { get; set; } = "";
 }
 

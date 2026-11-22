@@ -109,7 +109,7 @@ public partial class ProfileView : UserControl, IPage
     {
         var content = new StackPanel { Orientation = Orientation.Horizontal };
         content.Children.Add(new TextBlock { Text = glyph, FontFamily = (FontFamily)Application.Current.FindResource("Icons"), FontSize = 11, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 0, 6, 0) });
-        content.Children.Add(new TextBlock { Text = text, FontFamily = (FontFamily)Application.Current.FindResource("Pixel"), FontSize = 12, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 2, 0, 0) });
+        content.Children.Add(new TextBlock { Text = text, FontFamily = (FontFamily)Application.Current.FindResource("Heading"), FontSize = 12, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(0, 2, 0, 0) });
         var chip = new Border
         {
             Background = (Brush)Application.Current.FindResource("Field"),
@@ -132,7 +132,7 @@ public partial class ProfileView : UserControl, IPage
     private static Border Stat(string glyph, string label, string value, out TextBlock valueText)
     {
         var text = new StackPanel();
-        text.Children.Add(new TextBlock { Text = label, FontFamily = (FontFamily)Application.Current.FindResource("Pixel"), FontSize = 10, Foreground = (Brush)Application.Current.FindResource("TextSoft") });
+        text.Children.Add(new TextBlock { Text = label, FontFamily = (FontFamily)Application.Current.FindResource("Heading"), FontSize = 10, Foreground = (Brush)Application.Current.FindResource("TextSoft") });
         valueText = new TextBlock { Text = value, FontWeight = FontWeights.SemiBold, FontSize = 13, Margin = new Thickness(0, 2, 0, 0) };
         text.Children.Add(valueText);
         var row = new StackPanel { Orientation = Orientation.Horizontal };

@@ -4,16 +4,16 @@
              StartupUri="MainWindow.xaml"
              DispatcherUnhandledException="OnUnhandledException">
     <Application.Resources>
-        <SolidColorBrush x:Key="Accent" Color="#57B847"/>
-        <SolidColorBrush x:Key="AccentHover" Color="#68CB57"/>
-        <SolidColorBrush x:Key="Panel" Color="#EB0B101A"/>
+        <SolidColorBrush x:Key="Accent" Color="#E5484D"/>
+        <SolidColorBrush x:Key="AccentHover" Color="#FB5E63"/>
+        <SolidColorBrush x:Key="Panel" Color="#EB100C0E"/>
         <SolidColorBrush x:Key="Field" Color="#16FFFFFF"/>
         <SolidColorBrush x:Key="FieldHover" Color="#2CFFFFFF"/>
-        <SolidColorBrush x:Key="Line" Color="#22FFFFFF"/>
+        <SolidColorBrush x:Key="Line" Color="#26FFFFFF"/>
         <SolidColorBrush x:Key="TextMain" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="TextSoft" Color="#9AA3B5"/>
+        <SolidColorBrush x:Key="TextSoft" Color="#B2A6AB"/>
         <FontFamily x:Key="Body">pack://application:,,,/Assets/Fonts/#Inter</FontFamily>
-        <FontFamily x:Key="Pixel">pack://application:,,,/Assets/Fonts/#Minecraft</FontFamily>
+        <FontFamily x:Key="Heading">pack://application:,,,/Assets/Fonts/#Inter</FontFamily>
         <FontFamily x:Key="Icons">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
         <QuarticEase x:Key="EaseOut" EasingMode="EaseOut"/>
         <BackEase x:Key="EaseBack" EasingMode="EaseOut" Amplitude="0.4"/>
@@ -21,8 +21,9 @@
         <!-- Accent button in the NoRisk look: tinted fill, accent frame with a thick bottom edge, glow and shine on hover -->
         <Style x:Key="PlayButton" TargetType="Button">
             <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
-            <Setter Property="FontFamily" Value="{StaticResource Pixel}"/>
+            <Setter Property="FontFamily" Value="{StaticResource Heading}"/>
             <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -38,7 +39,7 @@
                                 </Border.Effect>
                             </Border>
                             <Grid ClipToBounds="True">
-                                <Border Background="#E60D1322" CornerRadius="3"/>
+                                <Border Background="#E61A0E12" CornerRadius="3"/>
                                 <Border x:Name="Tint" Background="{DynamicResource Accent}" Opacity="0.22" CornerRadius="3"/>
                                 <Border CornerRadius="3">
                                     <Border.Background>
@@ -68,7 +69,7 @@
                             <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Margin="{TemplateBinding Padding}">
                                 <ContentPresenter HorizontalAlignment="Center"/>
                                 <TextBlock x:Name="Sub" Text="{TemplateBinding Tag}" FontFamily="{StaticResource Body}" FontSize="11"
-                                           Foreground="#C8D0E0" HorizontalAlignment="Center" Margin="0,3,0,0"/>
+                                           Foreground="#E8D0D4" HorizontalAlignment="Center" Margin="0,3,0,0"/>
                             </StackPanel>
                         </Grid>
                         <ControlTemplate.Triggers>
@@ -281,7 +282,7 @@
                                         <ScaleTransform x:Name="Pop" ScaleX="0.5" ScaleY="0.5"/>
                                     </Border.RenderTransform>
                                     <TextBlock Text="&#xE73E;" FontFamily="{StaticResource Icons}" FontSize="12"
-                                               Foreground="#0D160C" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                               Foreground="#1A080B" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
                             </Grid>
                             <ContentPresenter Margin="10,0,0,0" VerticalAlignment="Center"/>
@@ -316,7 +317,7 @@
         <!-- Sliding switch, used for "Skin Animation" -->
         <Style x:Key="ToggleSwitch" TargetType="CheckBox">
             <Setter Property="Foreground" Value="{StaticResource TextSoft}"/>
-            <Setter Property="FontFamily" Value="{StaticResource Pixel}"/>
+            <Setter Property="FontFamily" Value="{StaticResource Heading}"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
@@ -326,9 +327,9 @@
                         <StackPanel Orientation="Horizontal" Background="Transparent">
                             <ContentPresenter Margin="0,0,10,0" VerticalAlignment="Center"/>
                             <Grid Width="36" Height="18">
-                                <Border Background="{StaticResource FieldHover}" CornerRadius="3"/>
-                                <Border x:Name="On" Background="{DynamicResource Accent}" CornerRadius="3" Opacity="0"/>
-                                <Border Width="12" Height="12" CornerRadius="2" Background="White" HorizontalAlignment="Left" Margin="3,0,0,0">
+                                <Border Background="{StaticResource FieldHover}" CornerRadius="9"/>
+                                <Border x:Name="On" Background="{DynamicResource Accent}" CornerRadius="9" Opacity="0"/>
+                                <Border Width="12" Height="12" CornerRadius="6" Background="White" HorizontalAlignment="Left" Margin="3,0,0,0">
                                     <Border.RenderTransform>
                                         <TranslateTransform x:Name="Knob"/>
                                     </Border.RenderTransform>
@@ -431,7 +432,7 @@
                                           IsChecked="{Binding IsDropDownOpen, RelativeSource={RelativeSource TemplatedParent}, Mode=TwoWay}">
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="ToggleButton">
-                                        <Border x:Name="Box" Background="#D90B101A" CornerRadius="6" BorderBrush="{StaticResource Line}" BorderThickness="1">
+                                        <Border x:Name="Box" Background="#D9100C0E" CornerRadius="6" BorderBrush="{StaticResource Line}" BorderThickness="1">
                                             <TextBlock Text="&#xE70D;" FontFamily="{StaticResource Icons}" FontSize="10" Foreground="{StaticResource TextSoft}"
                                                        HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                         </Border>
@@ -447,7 +448,7 @@
                                               VerticalAlignment="Center" Margin="14,0,32,0"/>
                             <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="{Binding Tag, RelativeSource={RelativeSource TemplatedParent}, TargetNullValue=Top}" AllowsTransparency="True"
                                    Focusable="False" PopupAnimation="Slide" MinWidth="{TemplateBinding ActualWidth}" VerticalOffset="-6">
-                                <Border Background="#F70B101A" CornerRadius="6" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="4">
+                                <Border Background="#F7100C0E" CornerRadius="6" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="4">
                                     <ScrollViewer MaxHeight="280" HorizontalScrollBarVisibility="Disabled">
                                         <ItemsPresenter/>
                                     </ScrollViewer>
@@ -473,7 +474,7 @@
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="ToggleButton">
                                         <Grid Background="Transparent">
-                                            <Border Background="#E60D1322" CornerRadius="3"/>
+                                            <Border Background="#E61A0E12" CornerRadius="3"/>
                                             <Border x:Name="Tint" Background="{DynamicResource Accent}" Opacity="0.14" CornerRadius="3"/>
                                             <Border BorderBrush="{DynamicResource Accent}" BorderThickness="1,1,1,3" CornerRadius="3"/>
                                             <TextBlock Text="&#xE70D;" FontFamily="{StaticResource Icons}" FontSize="13" Foreground="White"
@@ -509,9 +510,9 @@
                             </ToggleButton>
                             <Popup x:Name="PART_Popup" IsOpen="{TemplateBinding IsDropDownOpen}" Placement="Top" AllowsTransparency="True"
                                    Focusable="False" PopupAnimation="Slide" HorizontalOffset="-336" VerticalOffset="-8" Width="400">
-                                <Border Background="#F70B101A" CornerRadius="6" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="4">
+                                <Border Background="#F7100C0E" CornerRadius="6" BorderBrush="{StaticResource Line}" BorderThickness="1" Padding="4">
                                     <StackPanel>
-                                        <TextBlock Text="SELECT PROFILE" FontFamily="{StaticResource Pixel}" FontSize="11" Foreground="{StaticResource TextSoft}" Margin="10,6,0,4"/>
+                                        <TextBlock Text="SELECT PROFILE" FontFamily="{StaticResource Heading}" FontSize="11" Foreground="{StaticResource TextSoft}" Margin="10,6,0,4"/>
                                         <ScrollViewer MaxHeight="300" HorizontalScrollBarVisibility="Disabled">
                                             <ItemsPresenter/>
                                         </ScrollViewer>
@@ -622,13 +623,13 @@
             <Setter Property="Foreground" Value="{StaticResource TextSoft}"/>
             <Setter Property="Focusable" Value="False"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Height" Value="68"/>
-            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Height" Value="64"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
                         <Grid Background="Transparent">
-                            <Border x:Name="Hover" Background="{StaticResource Field}" CornerRadius="4" Opacity="0"/>
+                            <Border x:Name="Hover" Background="{StaticResource Field}" CornerRadius="10" Opacity="0"/>
                             <StackPanel VerticalAlignment="Center" RenderTransformOrigin="0.5,0.5">
                                 <StackPanel.RenderTransform>
                                     <TransformGroup>
@@ -636,9 +637,9 @@
                                         <TranslateTransform x:Name="Rise"/>
                                     </TransformGroup>
                                 </StackPanel.RenderTransform>
-                                <ContentPresenter HorizontalAlignment="Center" Height="24"/>
-                                <TextBlock Text="{TemplateBinding Tag}" FontFamily="{StaticResource Pixel}" FontSize="10"
-                                           HorizontalAlignment="Center" Margin="0,7,0,0" Typography.Capitals="AllSmallCaps"
+                                <ContentPresenter HorizontalAlignment="Center" Height="20"/>
+                                <TextBlock Text="{TemplateBinding Tag}" FontFamily="{StaticResource Body}" FontSize="11"
+                                           HorizontalAlignment="Center" Margin="0,5,0,0"
                                            Foreground="{TemplateBinding Foreground}" x:Name="Label"/>
                             </StackPanel>
                         </Grid>
@@ -679,7 +680,7 @@
         </Style>
 
         <Style x:Key="SideHeader" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="{StaticResource Pixel}"/>
+            <Setter Property="FontFamily" Value="{StaticResource Heading}"/>
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="Foreground" Value="{StaticResource TextSoft}"/>
             <Setter Property="Margin" Value="8,0,0,6"/>
@@ -688,7 +689,7 @@
         <!-- Profile page section tab: icon glyph in Tag, pixel label, accent bar slides in when selected -->
         <Style x:Key="SideTab" TargetType="RadioButton">
             <Setter Property="Foreground" Value="{StaticResource TextSoft}"/>
-            <Setter Property="FontFamily" Value="{StaticResource Pixel}"/>
+            <Setter Property="FontFamily" Value="{StaticResource Heading}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Height" Value="34"/>
             <Setter Property="Margin" Value="0,0,0,2"/>
@@ -763,23 +764,17 @@
         </Style>
 
         <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background">
-                <Setter.Value>
-                    <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                        <GradientStop Color="#EB141B2B" Offset="0"/>
-                        <GradientStop Color="#EB0B101A" Offset="1"/>
-                    </LinearGradientBrush>
-                </Setter.Value>
-            </Setter>
+            <Setter Property="Background" Value="#EB171214"/>
             <Setter Property="BorderBrush" Value="{StaticResource Line}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="CornerRadius" Value="14"/>
             <Setter Property="Padding" Value="18"/>
         </Style>
 
         <Style x:Key="PageTitle" TargetType="TextBlock">
-            <Setter Property="FontFamily" Value="{StaticResource Pixel}"/>
-            <Setter Property="FontSize" Value="30"/>
+            <Setter Property="FontFamily" Value="{StaticResource Heading}"/>
+            <Setter Property="FontSize" Value="28"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{StaticResource TextMain}"/>
         </Style>
 
@@ -806,7 +801,7 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ContextMenu">
-                        <Border Background="#F70B101A" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="6" Padding="4" MinWidth="220">
+                        <Border Background="#F7100C0E" BorderBrush="{StaticResource Line}" BorderThickness="1" CornerRadius="6" Padding="4" MinWidth="220">
                             <ItemsPresenter/>
                         </Border>
                     </ControlTemplate>

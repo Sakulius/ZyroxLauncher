@@ -10,7 +10,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header: icon, name, chips, stats, play -->
-        <Border Background="#990B101A" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1">
+        <Border Background="#99100C0E" BorderBrush="{StaticResource Line}" BorderThickness="0,0,0,1">
             <DockPanel Margin="28,22,28,18">
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
                     <Button x:Name="FolderButton" Style="{StaticResource GhostButton}" Width="44" Height="48" Padding="0" Margin="0,0,8,0"
@@ -39,14 +39,14 @@
                             <Grid.RenderTransform>
                                 <ScaleTransform x:Name="IconPop"/>
                             </Grid.RenderTransform>
-                            <Border Background="#E60D1322" CornerRadius="4"/>
+                            <Border Background="#E61A0E12" CornerRadius="4"/>
                             <Border Background="{DynamicResource Accent}" Opacity="0.2" CornerRadius="4"/>
                             <Border BorderBrush="{DynamicResource Accent}" BorderThickness="1,1,1,3" CornerRadius="4"/>
                             <TextBlock x:Name="IconGlyph" Text="&#xE7B8;" FontFamily="{StaticResource Icons}" FontSize="32"
                                        HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Grid>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock x:Name="NameText" FontFamily="{StaticResource Pixel}" FontSize="34" TextTrimming="CharacterEllipsis"/>
+                            <TextBlock x:Name="NameText" FontFamily="{StaticResource Heading}" FontSize="34" TextTrimming="CharacterEllipsis"/>
                             <WrapPanel x:Name="Chips" Margin="0,8,0,0"/>
                         </StackPanel>
                     </StackPanel>
@@ -76,7 +76,7 @@
             </Grid>
 
             <!-- Section sidebar -->
-            <Border Grid.Column="1" Background="#990B101A" BorderBrush="{StaticResource Line}" BorderThickness="1,0,0,0">
+            <Border Grid.Column="1" Background="#99100C0E" BorderBrush="{StaticResource Line}" BorderThickness="1,0,0,0">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="10,16,10,16">
                         <TextBlock Text="CONTENT" Style="{StaticResource SideHeader}"/>
